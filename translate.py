@@ -8,7 +8,7 @@ from Bio import SeqIO
 # Read sequences
 # -----------------------------
 
-file_path = "input.fas"
+file_path = input("Enter the FASTA filename: ").strip()
 sequences = list(SeqIO.parse(file_path, "fasta"))
 
 # -----------------------------
