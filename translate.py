@@ -3,14 +3,13 @@ from Bio.SeqUtils.ProtParam import ProteinAnalysis
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio import SeqIO
-from scipy.stats import linregress
 
 # -----------------------------
 # Read sequences
 # -----------------------------
 
 file_path = "input.fas"
-sequences = list(SeqIO.parse(file_path, "fastaa"))
+sequences = list(SeqIO.parse(file_path, "fasta"))
 
 # -----------------------------
 # Translate DNA sequences to proteins (longest ORF)
@@ -35,7 +34,7 @@ for record in sequences:
         # Split translated protein at stop codons ("*").
         # This gives fragments of amino acids between stop codons.
         fragments = str(protein).split("*")
-        longest_in_frame = maxx(fragments, key=len)
+        longest_in_frame = max(fragments, key=len)
 
         # Keep track of the longest ORF found so far across all frames
         if len(longest_in_frame) > len(best_orf):
