@@ -9,8 +9,8 @@ from scipy.stats import linregress
 # Read sequences
 # -----------------------------
 
-file_path = "input.fas"
-sequences = list(SeqIO.parse(file_path, "fastaa"))
+file_path = "gene.fna"
+sequences = list(SeqIO.parse(file_path, "fasta"))  # Fixed: "fastaa" -> "fasta"
 
 # -----------------------------
 # Translate DNA sequences to proteins (longest ORF)
@@ -28,14 +28,15 @@ for record in sequences:
 
     # Check all three forward reading frames (0, 1, and 2)
     for frame in range(3):
-        # Translate the DNA sequence starting at the given frame.
-        # to_stop=False means translation continues through stop codons.
-        protein = dna_seq[frame:].translate(to_stop=False)
+        # Trim sequence to a multiple of 3 to avoid partial codon warnings
+        sub_seq = dna_seq[frame:]
+        trimmed_len = len(sub_seq) - (len(sub_seq) % 3)
+        protein = sub_seq[:trimmed_len].translate(to_stop=False)
 
         # Split translated protein at stop codons ("*").
         # This gives fragments of amino acids between stop codons.
         fragments = str(protein).split("*")
-        longest_in_frame = maxx(fragments, key=len)
+        longest_in_frame = max(fragments, key=len)  # Fixed: maxx -> max
 
         # Keep track of the longest ORF found so far across all frames
         if len(longest_in_frame) > len(best_orf):
@@ -45,10 +46,13 @@ for record in sequences:
     # Store the longest ORF as a Seq object
     best_protein = Seq(best_orf)
 
-    # Extract organism name
-    start = record.description.find("[organism=") + len("[organism=")
-    end = record.description.find("]", start)
-    latin_name = record.description[start:end].replace(" ", "_")
+    # Extract organism name safely
+    if "[organism=" in record.description:
+        start = record.description.find("[organism=") + len("[organism=")
+        end = record.description.find("]", start)
+        latin_name = record.description[start:end].replace(" ", "_")
+    else:
+        latin_name = record.id
 
     aa_record = SeqRecord(
         best_protein,
@@ -72,13 +76,14 @@ ambiguous_aas = set("XBZJUO")
 
 for record in aa_sequences:
     seq_str = str(record.seq)
-    prot = ProteinAnalysis(seq_str)
 
+    # Check for empty or ambiguous sequences before running ProteinAnalysis
     ambiguous_count = sum(aa in ambiguous_aas for aa in seq_str)
-    if ambiguous_count > 0:
-        continue  # skip sequences with ambiguous sites
+    if ambiguous_count > 0 or len(seq_str) == 0:
+        continue  # skip sequences with ambiguous sites or empty ORFs
 
-    aa_freqs = prot.get_amino_acids_percent()
+    prot = ProteinAnalysis(seq_str)
+    aa_freqs = prot.amino_acids_percent  # Fixed: updated for modern Biopython
 
     row = {
         "name": record.name,
@@ -98,3 +103,4 @@ print(df.head())
 # -----------------------------
 # END
 # -----------------------------
+
