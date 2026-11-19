@@ -7,6 +7,7 @@ This repository contains Python code for analysing biological sequences using Bi
 | File          | Description                                           |
 |---------------|--------------------------------------------------------|
 | `translate.py` | Main script for ORF detection and translation (contains intentional bugs ⚠️) |
+| `input.fas`    | Small synthetic FASTA file for trying the script      |
 | `README.md`    | Project documentation                                |
 
 
@@ -32,4 +33,3 @@ This repository contains Python code for analysing biological sequences using Bi
 - **Modify the script in the development branch** <br>Add a Python `input()` function to ask the user for a FASTA filename. After making the change, stage, commit, and push it to the development branch. 
 - **Update the main branch** <br>In the main branch, add Python code to plot Sequence Length vs Molecular Weight using matplotlib. 
 - **Merge branches** <br>Merge the development branch into the main branch, resolving any conflicts if necessary.
-
